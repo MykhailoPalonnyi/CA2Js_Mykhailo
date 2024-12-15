@@ -5,6 +5,7 @@ import Platform from './platform.js';
 import Player from './player.js';
 import { Images } from '../engine/resources.js';
 import MovingPlatform from './movingPlatform.js';
+import FinishPoint from './finishPoint.js';
 
 class Level extends Game {
     constructor(canvasId) {
@@ -21,13 +22,16 @@ class Level extends Game {
             new Platform(300, this.canvas.height - 40, 200, 20, Images.Tile), 
             new Platform(600, this.canvas.height - 80, 200, 60, Images.Tile), 
             new Platform(900, this.canvas.height - 40, 200, 20, Images.Tile),
+            new Platform(1600, this.canvas.height - 200, 200, 20, Images.Tile),
            
         ];
 
         const movingPlatforms = [
-            new MovingPlatform(400, this.canvas.height - 100, 150, 20, Images.Tile, 100, 50, 'horizontal'), 
-            new MovingPlatform(800, this.canvas.height - 150, 150, 20, Images.Tile, 100, 50, 'vertical'),
+            new MovingPlatform(1300, this.canvas.height - 100, 100, 20, Images.Tile, 100, 50, 'horizontal'), 
+            new MovingPlatform(1400, this.canvas.height - 150, 100, 20, Images.Tile, 100, 50, 'vertical'),
         ];
+        const finishPoint = new FinishPoint(1750, this.canvas.height - 240, 50, 50);
+        this.addGameObject(finishPoint);
        
 
         for (const platform of platforms) {

@@ -7,6 +7,8 @@ import Input from "../engine/input.js";
 import { Images, AudioFiles } from '../engine/resources.js';
 import Platform from './platform.js';
 import MovingPlatform from './movingPlatform.js'; 
+import FinishPoint from './finishPoint.js';
+import UI from '../engine/ui.js';
 
 class Player extends GameObject {
     constructor(x, y, w, h) {
@@ -33,7 +35,7 @@ class Player extends GameObject {
         this.speed = 100;
         this.isOnPlatform = false;
         this.isJumping = false;
-        this.jumpForce = 300;
+        this.jumpForce = 200;
         this.jumpTime = 1.0;
         this.jumpTimer = 0;
         this.startPoint = { x: x, y: y };
@@ -99,9 +101,15 @@ class Player extends GameObject {
             this.x = this.startPoint.x;
             this.y = this.startPoint.y;
         }
+        const finishPoint = this.game.gameObjects.find((obj) => obj instanceof FinishPoint);
+        if (finishPoint && physics.isColliding(finishPoint.getComponent(Physics))) {
+            this.game.setPause(); 
+            this.showCompletionLabel(); 
+        }
 
         super.update(deltaTime);
     }
+    
 
     startJump() {
         if (this.isOnPlatform) {
@@ -151,6 +159,12 @@ class Player extends GameObject {
             images.push(img);
         }
         return images;
+    }
+    showCompletionLabel() {
+        const uiObject = new GameObject(0, 0);
+        const ui = new UI('You beat the game!', this.game.canvas.width / 2, this.game.canvas.height / 2, '30px Arial', 'white', 'center', 'middle');
+        uiObject.addComponent(ui);
+        this.game.addGameObject(uiObject);
     }
 }
 export default Player;
