@@ -9,6 +9,7 @@ import Platform from './platform.js';
 import MovingPlatform from './movingPlatform.js'; 
 import FinishPoint from './finishPoint.js';
 import UI from '../engine/ui.js';
+import ConveyorBelt from './conveyorBelt.js';
 
 class Player extends GameObject {
     constructor(x, y, w, h) {
@@ -35,7 +36,7 @@ class Player extends GameObject {
         this.speed = 100;
         this.isOnPlatform = false;
         this.isJumping = false;
-        this.jumpForce = 200;
+        this.jumpForce = 250;
         this.jumpTime = 1.0;
         this.jumpTimer = 0;
         this.startPoint = { x: x, y: y };
@@ -78,7 +79,7 @@ class Player extends GameObject {
         }
 
         
-        const platforms = this.game.gameObjects.filter((obj) => obj instanceof Platform || obj instanceof MovingPlatform);
+        const platforms = this.game.gameObjects.filter((obj) => obj instanceof Platform || obj instanceof MovingPlatform || obj instanceof ConveyorBelt);
         for (const platform of platforms) {
             if (physics.isColliding(platform.getComponent(Physics))) {
                 if (!this.isJumping) {
@@ -92,9 +93,16 @@ class Player extends GameObject {
                         this.x += platform.getComponent(Physics).velocity.x * deltaTime;
                         this.y += platform.getComponent(Physics).velocity.y * deltaTime;
                     }
-                }
+
+                    if (platform instanceof ConveyorBelt) {
+                        if (platform.direction === 'right') {
+                            physics.velocity.x += platform.speed; 
+                        } else if (platform.direction === 'left') {
+                            physics.velocity.x -= platform.speed; 
+                        }
+                    }
             }
-        }
+        }}
 
 
         if (this.y > this.game.canvas.height) {
