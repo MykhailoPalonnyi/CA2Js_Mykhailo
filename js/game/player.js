@@ -15,88 +15,89 @@ import Spike from './spike.js';
 class Player extends GameObject {
     constructor(x, y, w, h) {
         super(x, y);
+
+        // Add a Physics component to handle physics-based movement
         this.addComponent(new Physics({ x: 0, y: 0 }, { x: 0, y: 0 }));
+
+        // Add an Input component to handle player input
         this.addComponent(new Input());
+
+        // Create an Animator component to handle animations
         this.animator = new Animator('red', w, h);
         this.addComponent(this.animator);
 
+        // Define animations for running, idling, and jumping
         let run = new Animation('red', w, h, this.getImages("./resources/images/player/Run", "Run", 6), 10);
         let idle = new Animation('red', w, h, this.getImages("./resources/images/player/Idle", "Idle", 4), 10);
         let jump = new Animation('red', w, h, this.getImages("./resources/images/player/Jump", "Jump", 2), 10);
 
+        // Add animations to the animator
         this.animator.addAnimation("run", run);
         this.animator.addAnimation("idle", idle);
         this.animator.addAnimation("jump", jump);
+
+        // Set the initial animation to "idle"
         this.animator.setAnimation("idle");
 
+        // Set the player's tag for identification
         this.tag = "player";
+
+        // Initialize player properties
         this.isOnPlatform = false;
-        this.direction = 1;
+        this.direction = 1; // 1 for right, -1 for left
         this.defaultSpeed = 100;
         this.speed = 120;
-        this.isOnPlatform = false;
         this.isJumping = false;
         this.jumpForce = 250;
         this.jumpTime = 1.0;
         this.jumpTimer = 0;
-        this.startPoint = { x: x, y: y };
-        this.jumpCooldown = 2; 
-        this.jumpCooldownTimer = 0; 
-
-        this.dashSpeed = 400;
-        this.dashDuration = 0.2;
-        this.dashTimer = 0;
-        this.isDashing = false;
+        this.startPoint = { x: x, y: y }; // Starting position for reset
+        this.jumpCooldown = 2; // Cooldown time between jumps
+        this.jumpCooldownTimer = 0;
     }
 
     update(deltaTime) {
         const physics = this.getComponent(Physics);
         const input = this.getComponent(Input);
 
-        
-        if (input.isKeyDown("ShiftLeft") && !this.isDashing) {
-            this.startDash();
-        }
-
-        
-        if (this.isDashing) {
-            this.updateDash(deltaTime);
+        // Handle horizontal movement
+        if (input.isKeyDown("ArrowRight")) {
+            physics.velocity.x = this.speed;
+            this.direction = 1;
+            this.animator.setAnimation("run");
+            AudioFiles.walk.play();
+        } else if (input.isKeyDown("ArrowLeft")) {
+            physics.velocity.x = -this.speed;
+            this.direction = -1;
+            this.animator.setAnimation("run");
+            AudioFiles.walk.play();
         } else {
-            if (input.isKeyDown("ArrowRight")) {
-                physics.velocity.x = this.speed;
-                this.direction = 1;
-                this.animator.setAnimation("run");
-                AudioFiles.walk.play();
-            } else if (input.isKeyDown("ArrowLeft")) {
-                physics.velocity.x = -this.speed;
-                this.direction = -1;
-                this.animator.setAnimation("run");
-                AudioFiles.walk.play();
-            } else {
-                physics.velocity.x = 0;
-                this.animator.setAnimation("idle");
-                AudioFiles.walk.pause();
-            }
+            physics.velocity.x = 0;
+            this.animator.setAnimation("idle");
+            AudioFiles.walk.pause();
         }
 
+        // Pause the game if "P" key is pressed
         if (input.isKeyDown("KeyP")) {
             this.game.setPause();
         }
 
+        // Handle jumping
         if (input.isKeyDown("ArrowUp") && this.isOnPlatform) {
             this.startJump();
         }
 
-        
+        // Update jump cooldown timer
         if (this.jumpCooldownTimer > 0) {
             this.jumpCooldownTimer -= deltaTime;
         }
 
+        // Update jump logic
         if (this.isJumping) {
             this.updateJump(deltaTime);
         }
 
-        
+        // Check for collisions with platforms
         const platforms = this.game.gameObjects.filter((obj) => obj instanceof Platform || obj instanceof MovingPlatform || obj instanceof ConveyorBelt);
         for (const platform of platforms) {
             if (physics.isColliding(platform.getComponent(Physics))) {
@@ -106,13 +107,13 @@ class Player extends GameObject {
                     this.y = platform.y - this.getComponent(Renderer).height;
                     this.isOnPlatform = true;
 
-                   
+                    // Handle moving platforms
                     if (platform instanceof MovingPlatform) {
                         this.x += platform.getComponent(Physics).velocity.x * deltaTime;
                         this.y += platform.getComponent(Physics).velocity.y * deltaTime;
                     }
 
-                   
+                    // Handle conveyor belts
                     if (platform instanceof ConveyorBelt) {
                         if (platform.direction === 'right') {
                             physics.velocity.x += platform.speed;
@@ -124,17 +125,20 @@ class Player extends GameObject {
             }
         }
 
+        // Reset player if they fall off the screen
         if (this.y > this.game.canvas.height) {
             this.x = this.startPoint.x;
             this.y = this.startPoint.y;
         }
 
+        // Check for collision with the finish point
         const finishPoint = this.game.gameObjects.find((obj) => obj instanceof FinishPoint);
         if (finishPoint && physics.isColliding(finishPoint.getComponent(Physics))) {
             this.game.setPause();
             this.showCompletionLabel();
         }
 
+        // Check for collision with spikes
         const spikes = this.game.gameObjects.filter((obj) => obj instanceof Spike);
         for (const spike of spikes) {
             if (physics.isColliding(spike.getComponent(Physics))) {
@@ -142,9 +146,11 @@ class Player extends GameObject {
             }
         }
 
+        // Call the parent class's update method
         super.update(deltaTime);
     }
 
+    // Start the jump
     startJump() {
         if (this.isOnPlatform && this.jumpCooldownTimer <= 0) {
             this.isJumping = true;
@@ -152,10 +158,11 @@ class Player extends GameObject {
             this.getComponent(Physics).velocity.y = -this.jumpForce;
             this.isOnPlatform = false;
             this.animator.setAnimation("jump");
-            this.jumpCooldownTimer = this.jumpCooldown; 
+            this.jumpCooldownTimer = this.jumpCooldown; // Set jump cooldown
         }
     }
 
+    // Update the jump logic
     updateJump(deltaTime) {
         this.jumpTimer -= deltaTime;
         if (this.jumpTimer <= 0 || this.getComponent(Physics).velocity.y > 0) {
@@ -163,7 +170,7 @@ class Player extends GameObject {
         }
     }
 
-
+    // Load images for animations
     getImages(path, baseName, numImages) {
         let images = [];
         for (let i = 1; i <= numImages; i++) {
@@ -174,6 +181,7 @@ class Player extends GameObject {
         return images;
     }
 
+    // Show a completion label when the game is finished
     showCompletionLabel() {
         const uiObject = new GameObject(0, 0);
         const ui = new UI('You beat the game! GOIDA', this.game.canvas.width / 2, this.game.canvas.height / 2, '30px Arial', 'white', 'center', 'middle');
@@ -181,6 +189,7 @@ class Player extends GameObject {
         this.game.addGameObject(uiObject);
     }
 
+    // Reset the player to the starting position
     resetPlayer() {
         this.x = this.startPoint.x;
         this.y = this.startPoint.y;

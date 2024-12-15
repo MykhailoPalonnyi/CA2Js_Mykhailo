@@ -36,6 +36,7 @@ RunImages[2].src = "./resources/images/player/Run3.png";
 RunImages[3].src = "./resources/images/player/Run4.png";
 Images.Tile.src = "./resources/images/GrassMid.png";
 
+// Set the source of the spike image.
 Images.spike.src = './resources/images/spike.png';
 
 
