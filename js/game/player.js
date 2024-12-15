@@ -10,6 +10,7 @@ import MovingPlatform from './movingPlatform.js';
 import FinishPoint from './finishPoint.js';
 import UI from '../engine/ui.js';
 import ConveyorBelt from './conveyorBelt.js';
+import Spike from './spike.js';
 
 class Player extends GameObject {
     constructor(x, y, w, h) {
@@ -103,6 +104,7 @@ class Player extends GameObject {
                     }
             }
         }}
+        
 
 
         if (this.y > this.game.canvas.height) {
@@ -114,6 +116,13 @@ class Player extends GameObject {
             this.game.setPause(); 
             this.showCompletionLabel(); 
         }
+        const spikes = this.game.gameObjects.filter((obj) => obj instanceof Spike);
+        for (const spike of spikes) {
+            if (physics.isColliding(spike.getComponent(Physics))) {
+                this.resetPlayer(); 
+            }
+        }
+        
 
         super.update(deltaTime);
     }
@@ -173,6 +182,12 @@ class Player extends GameObject {
         const ui = new UI('You beat the game!', this.game.canvas.width / 2, this.game.canvas.height / 2, '30px Arial', 'white', 'center', 'middle');
         uiObject.addComponent(ui);
         this.game.addGameObject(uiObject);
+    }
+    resetPlayer() {
+        this.x = this.startPoint.x;
+        this.y = this.startPoint.y;
+        this.getComponent(Physics).velocity.x = 0;
+        this.getComponent(Physics).velocity.y = 0;
     }
 }
 export default Player;

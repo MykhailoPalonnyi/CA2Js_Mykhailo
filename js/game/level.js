@@ -7,6 +7,7 @@ import { Images } from '../engine/resources.js';
 import MovingPlatform from './movingPlatform.js';
 import FinishPoint from './finishPoint.js';
 import ConveyorBelt from './conveyorBelt.js';
+import Spike from './spike.js';
 
 class Level extends Game {
     constructor(canvasId) {
@@ -21,7 +22,7 @@ class Level extends Game {
         const platforms = [ 
             new Platform(0, this.canvas.height - 40, 200, 20, Images.Tile), 
             new Platform(300, this.canvas.height - 40, 200, 20, Images.Tile), 
-            new Platform(1600, this.canvas.height - 200, 150, 20, Images.Tile), 
+            new Platform(2000, this.canvas.height - 200, 150, 20, Images.Tile), 
             
         ];
 
@@ -29,11 +30,15 @@ class Level extends Game {
             new MovingPlatform(1300, this.canvas.height - 100, 100, 20, Images.Tile, 100, 50, 'horizontal'), 
             new MovingPlatform(1400, this.canvas.height - 150, 100, 20, Images.Tile, 100, 50, 'vertical'),
         ];
-        const finishPoint = new FinishPoint(1640, this.canvas.height - 240, 50, 50);
+        const finishPoint = new FinishPoint(2040, this.canvas.height - 240, 50, 50);
         this.addGameObject(finishPoint);
         const conveyorBelts = [
             new ConveyorBelt(550, this.canvas.height - 60, 300, 20, Images.Tile, 'right', 100), 
             new ConveyorBelt(920, this.canvas.height - 40, 250, 20, Images.Tile, 'left', 100), 
+        ];
+        const spikes = [
+            new Spike(450, this.canvas.height - 60, 40, 20, 'black'), 
+            new Spike(750, this.canvas.height - 80, 40, 20, 'black'), 
         ];
 
         for (const platform of platforms) {
@@ -44,6 +49,9 @@ class Level extends Game {
         }
         for (const conveyorBelt of conveyorBelts) {
             this.addGameObject(conveyorBelt);
+        }
+        for (const spike of spikes) {
+            this.addGameObject(spike);
         }
     
     }
