@@ -7,14 +7,21 @@ class Platform extends GameObject
 {
     constructor(x, y, w, h, img, color="brown")
     {
-        super(x, y);
-        
-        this.addComponent(new HorizontalTileRenderer(color, w, h, img));
-        this.addComponent(new Physics({x:0, y:0},{x:0, y:0},{x:0, y:0}));
-        
-        this.tag = "platform";
+        // Call the parent class's constructor (GameObject) with the initial position (x, y)
+    super(x, y);
 
-        
+    // Add a HorizontalTileRenderer component to handle rendering the platform
+    // The platform is rendered with the specified color, width, height, and image
+    // The HorizontalTileRenderer tiles the image horizontally across the platform
+    this.addComponent(new HorizontalTileRenderer(color, w, h, img));
+
+    // Add a Physics component to handle collision detection
+    // The Physics component is initialized with zero velocity, acceleration, and gravity
+    this.addComponent(new Physics({ x: 0, y: 0 }, { x: 0, y: 0 }, { x: 0, y: 0 }));
+
+    // Set a tag for the platform to identify it in the game
+    this.tag = "platform";
+
     }
 }
 
