@@ -15,10 +15,13 @@ class Level extends Game {
         this.camera.target = player;
         this.addGameObject(player);
 
-        const platforms = [
-            new Platform(0, this.canvas.height - 40, 200, 20, Images.Tile),
-            new Platform(300, this.canvas.height - 40, 200, 20, Images.Tile),
-            new Platform(600, this.canvas.height - 80, 200, 60, Images.Tile)
+        const platforms = [ 
+            new Platform(0, this.canvas.height - 40, 200, 20, Images.Tile), // Starting platform
+            new Platform(300, this.canvas.height - 40, 200, 20, Images.Tile), // Middle platform
+            new Platform(600, this.canvas.height - 80, 200, 60, Images.Tile), // Higher platform
+            new Platform(900, this.canvas.height - 40, 200, 20, Images.Tile), // Next platform
+            new Platform(1200, this.canvas.height - 80, 200, 60, Images.Tile), // Higher platform
+            new Platform(1500, this.canvas.height - 40, 200, 20, Images.Tile),
         ];
 
         for (const platform of platforms) {

@@ -16,7 +16,7 @@ class Player extends GameObject {
         this.animator = new Animator('red', w, h);
         this.addComponent(this.animator);
 
-        // Add animations
+        
         let run = new Animation('red', w, h, this.getImages("./resources/images/player/Run", "Run", 6), 10);
         let idle = new Animation('red', w, h, this.getImages("./resources/images/player/Idle", "Idle", 4), 10);
         let jump = new Animation('red', w, h, this.getImages("./resources/images/player/Jump", "Jump", 2), 10);
@@ -39,26 +39,13 @@ class Player extends GameObject {
         this.startPoint = { x: x, y: y };
 
        
-        this.isDashing = false;
-        this.dashSpeed = 300; 
-        this.dashDuration = 0.2; 
-        this.dashTimer = 0;
-        this.dashCooldown = 1.0; 
-        this.cooldownTimer = 0;
+       
     }
 
     update(deltaTime) {
         const physics = this.getComponent(Physics);
         const input = this.getComponent(Input);
-
-        
-        if (input.isKeyDown("ShiftLeft") && !this.isDashing && this.cooldownTimer <= 0) {
-            this.startDash();
-        }
-
-        if (this.isDashing) {
-            this.updateDash(deltaTime);
-        } else {
+   
         
             if (input.isKeyDown("ArrowRight")) {
                 physics.velocity.x = this.speed;
@@ -75,7 +62,6 @@ class Player extends GameObject {
                 this.animator.setAnimation("idle");
                 AudioFiles.walk.pause();
             }
-        }
 
         if (input.isKeyDown("KeyP")) {
             this.game.setPause();
@@ -123,20 +109,6 @@ class Player extends GameObject {
         super.update(deltaTime);
     }
 
-    startDash() {
-        this.isDashing = true;
-        this.dashTimer = this.dashDuration;
-        this.speed = this.dashSpeed; 
-    }
-
-    updateDash(deltaTime) {
-        this.dashTimer -= deltaTime;
-        if (this.dashTimer <= 0) {
-            this.isDashing = false;
-            this.speed = this.defaultSpeed; 
-            this.cooldownTimer = this.dashCooldown; 
-        }
-    }
 
     startJump() {
         if (this.isOnPlatform) {
