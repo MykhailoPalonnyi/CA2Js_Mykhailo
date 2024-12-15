@@ -6,7 +6,7 @@ import Physics from '../engine/physics.js';
 import Input from "../engine/input.js";
 import { Images, AudioFiles } from '../engine/resources.js';
 import Platform from './platform.js';
-import { RunImages } from '../engine/resources.js';
+import MovingPlatform from './movingPlatform.js'; 
 
 class Player extends GameObject {
     constructor(x, y, w, h) {
@@ -16,7 +16,7 @@ class Player extends GameObject {
         this.animator = new Animator('red', w, h);
         this.addComponent(this.animator);
 
-        
+       
         let run = new Animation('red', w, h, this.getImages("./resources/images/player/Run", "Run", 6), 10);
         let idle = new Animation('red', w, h, this.getImages("./resources/images/player/Idle", "Idle", 4), 10);
         let jump = new Animation('red', w, h, this.getImages("./resources/images/player/Jump", "Jump", 2), 10);
@@ -30,7 +30,7 @@ class Player extends GameObject {
         this.isOnPlatform = false;
         this.direction = 1;
         this.defaultSpeed = 100;
-        this.speed = this.defaultSpeed;
+        this.speed = 100;
         this.isOnPlatform = false;
         this.isJumping = false;
         this.jumpForce = 300;
@@ -38,14 +38,14 @@ class Player extends GameObject {
         this.jumpTimer = 0;
         this.startPoint = { x: x, y: y };
 
-       
-       
+        
     }
 
     update(deltaTime) {
         const physics = this.getComponent(Physics);
         const input = this.getComponent(Input);
-   
+
+      
         
             if (input.isKeyDown("ArrowRight")) {
                 physics.velocity.x = this.speed;
@@ -76,15 +76,7 @@ class Player extends GameObject {
         }
 
         
-        if (!this.isJumping && physics.velocity.y === 0) {
-            if (physics.velocity.x !== 0) {
-                this.animator.setAnimation("run"); 
-            } else {
-                this.animator.setAnimation("idle"); 
-            }
-        }
-
-        const platforms = this.game.gameObjects.filter((obj) => obj instanceof Platform);
+        const platforms = this.game.gameObjects.filter((obj) => obj instanceof Platform || obj instanceof MovingPlatform);
         for (const platform of platforms) {
             if (physics.isColliding(platform.getComponent(Physics))) {
                 if (!this.isJumping) {
@@ -92,23 +84,24 @@ class Player extends GameObject {
                     physics.velocity.y = 0;
                     this.y = platform.y - this.getComponent(Renderer).height;
                     this.isOnPlatform = true;
+
+                   
+                    if (platform instanceof MovingPlatform) {
+                        this.x += platform.getComponent(Physics).velocity.x * deltaTime;
+                        this.y += platform.getComponent(Physics).velocity.y * deltaTime;
+                    }
                 }
             }
         }
+
 
         if (this.y > this.game.canvas.height) {
             this.x = this.startPoint.x;
             this.y = this.startPoint.y;
         }
 
-        
-        if (this.cooldownTimer > 0) {
-            this.cooldownTimer -= deltaTime;
-        }
-
         super.update(deltaTime);
     }
-
 
     startJump() {
         if (this.isOnPlatform) {
@@ -116,7 +109,7 @@ class Player extends GameObject {
             this.jumpTimer = this.jumpTime;
             this.getComponent(Physics).velocity.y = -this.jumpForce;
             this.isOnPlatform = false;
-            this.animator.setAnimation("jump");
+            this.animator.setAnimation("jump"); 
         }
     }
 
@@ -124,6 +117,29 @@ class Player extends GameObject {
         this.jumpTimer -= deltaTime;
         if (this.jumpTimer <= 0 || this.getComponent(Physics).velocity.y > 0) {
             this.isJumping = false;
+        }
+    }
+
+    startDash() {
+        this.isDashing = true;
+        this.dashTimer = this.dashDuration;
+        const physics = this.getComponent(Physics);
+
+       
+        if (this.direction === 1) {
+            physics.velocity.x = this.dashSpeed; 
+        } else {
+            physics.velocity.x = -this.dashSpeed; 
+        }
+    }
+
+    updateDash(deltaTime) {
+        this.dashTimer -= deltaTime;
+
+        if (this.dashTimer <= 0) {
+            this.isDashing = false;
+            const physics = this.getComponent(Physics);
+            physics.velocity.x = 0;
         }
     }
 
@@ -137,5 +153,4 @@ class Player extends GameObject {
         return images;
     }
 }
-
 export default Player;

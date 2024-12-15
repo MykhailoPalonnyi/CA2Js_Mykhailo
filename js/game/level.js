@@ -4,6 +4,7 @@ import Confiner from '../engine/confiner.js';
 import Platform from './platform.js';
 import Player from './player.js';
 import { Images } from '../engine/resources.js';
+import MovingPlatform from './movingPlatform.js';
 
 class Level extends Game {
     constructor(canvasId) {
@@ -16,17 +17,26 @@ class Level extends Game {
         this.addGameObject(player);
 
         const platforms = [ 
-            new Platform(0, this.canvas.height - 40, 200, 20, Images.Tile), // Starting platform
-            new Platform(300, this.canvas.height - 40, 200, 20, Images.Tile), // Middle platform
-            new Platform(600, this.canvas.height - 80, 200, 60, Images.Tile), // Higher platform
-            new Platform(900, this.canvas.height - 40, 200, 20, Images.Tile), // Next platform
-            new Platform(1200, this.canvas.height - 80, 200, 60, Images.Tile), // Higher platform
-            new Platform(1500, this.canvas.height - 40, 200, 20, Images.Tile),
+            new Platform(0, this.canvas.height - 40, 200, 20, Images.Tile), 
+            new Platform(300, this.canvas.height - 40, 200, 20, Images.Tile), 
+            new Platform(600, this.canvas.height - 80, 200, 60, Images.Tile), 
+            new Platform(900, this.canvas.height - 40, 200, 20, Images.Tile),
+           
         ];
+
+        const movingPlatforms = [
+            new MovingPlatform(400, this.canvas.height - 100, 150, 20, Images.Tile, 100, 50, 'horizontal'), 
+            new MovingPlatform(800, this.canvas.height - 150, 150, 20, Images.Tile, 100, 50, 'vertical'),
+        ];
+       
 
         for (const platform of platforms) {
             this.addGameObject(platform);
         }
+        for (const movingPlatform of movingPlatforms) {
+            this.addGameObject(movingPlatform);
+        }
+    
     }
 }
 
